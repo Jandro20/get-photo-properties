@@ -2,6 +2,7 @@
 
 import os
 import sys
+import getopt
 from PIL import Image
 from PIL.ExifTags import TAGS
 
@@ -43,6 +44,37 @@ def get_metadata(images):
         LOG.write("\n\n")
 
 if __name__ == "__main__":
-    LOG = open("log.txt", 'w')
+
+    PATH = ""
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ho:", ["output="])
+    except getopt.GetoptError:
+        print("Command to use this tool: python get_properties.py -o <path/to/output/file>")
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt == '-h':
+            print("""You can use this command with some options:
+    - If you use it with no options, the result will be saved in the same path where the tool is saved.
+    - If you specify the output path, "python get_properties.py -o <path>", the result will be saved in <path>self.
+    - If you need see this help again, "python get_properties.py -h".""")
+            sys.exit(0)
+        elif opt in ("-o", "--output"):
+            PATH = arg
+
+    if PATH == "":
+        PATH = os.path.dirname(os.path.abspath(__file__))
+
+    if not os.path.exists(PATH):
+        print(f"Path selected is not a valid path [{PATH}]")
+        sys.exit(2)
+
+    print(f"Path selected is: {PATH}")
+
+    file = PATH+"/result.txt"
+    LOG = open(file, 'w', encoding='utf-8')
     get_set_of_images("./images/")
     LOG.close()
+
+    print(f"Completed! File created in {PATH}/result.txt")
